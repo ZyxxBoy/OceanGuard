@@ -1,0 +1,384 @@
+/* ============================================================
+   Coastal Monitoring IoT Dashboard — Custom Styles
+   ============================================================ */
+
+/* ---------- Root variables ---------- */
+:root {
+    --navy: #0b1120;
+    --navy-light: #131c33;
+    --navy-card: rgba(19, 28, 51, 0.65);
+    --cyan: #22d3ee;
+    --cyan-glow: rgba(34, 211, 238, 0.45);
+    --green: #34d399;
+    --yellow: #fbbf24;
+    --red: #f87171;
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+}
+
+body {
+    background: var(--navy);
+    color: var(--text);
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+}
+
+/* ---------- Scrollbar ---------- */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--navy);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--cyan);
+    border-radius: 3px;
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+    background: var(--navy-light);
+    border-right: 1px solid rgba(34, 211, 238, .12);
+    width: 260px;
+    min-height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    z-index: 40;
+    transition: transform .3s ease;
+}
+
+.sidebar .logo-area {
+    padding: 1.5rem 1.25rem;
+    border-bottom: 1px solid rgba(34, 211, 238, .08);
+}
+
+.sidebar .nav-link {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .75rem 1.25rem;
+    border-radius: .5rem;
+    margin: .25rem .75rem;
+    color: var(--text-dim);
+    font-size: .9rem;
+    transition: all .2s;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    background: rgba(34, 211, 238, .08);
+    color: var(--cyan);
+}
+
+.main-content {
+    margin-left: 260px;
+    padding: 2rem 2.5rem;
+}
+
+/* ---------- Glassmorphism Card ---------- */
+.glass-card {
+    background: var(--navy-card);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border: 1px solid rgba(34, 211, 238, .10);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.glass-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 32px rgba(34, 211, 238, .12);
+}
+
+/* ---------- Status glow rings ---------- */
+.status-glow {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: inline-block;
+    position: relative;
+}
+
+.status-glow::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    animation: pulse-ring 1.8s ease-in-out infinite;
+}
+
+.status-glow.normal {
+    background: var(--green);
+}
+
+.status-glow.normal::after {
+    box-shadow: 0 0 10px 3px rgba(52, 211, 153, .5);
+}
+
+.status-glow.warning {
+    background: var(--yellow);
+}
+
+.status-glow.warning::after {
+    box-shadow: 0 0 10px 3px rgba(251, 191, 36, .5);
+}
+
+.status-glow.danger {
+    background: var(--red);
+}
+
+.status-glow.danger::after {
+    box-shadow: 0 0 10px 3px rgba(248, 113, 113, .5);
+}
+
+@keyframes pulse-ring {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    70% {
+        opacity: 0;
+        transform: scale(1.5);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(1.5);
+    }
+}
+
+/* ---------- Card glow border per status ---------- */
+.card-normal {
+    border-color: rgba(52, 211, 153, .25);
+}
+
+.card-warning {
+    border-color: rgba(251, 191, 36, .30);
+    box-shadow: 0 0 20px rgba(251, 191, 36, .10);
+}
+
+.card-danger {
+    border-color: rgba(248, 113, 113, .35);
+    box-shadow: 0 0 24px rgba(248, 113, 113, .12);
+}
+
+/* ---------- Overall status banner ---------- */
+.overall-banner {
+    padding: 1.25rem 1.5rem;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-weight: 600;
+    font-size: 1.05rem;
+    transition: all .4s ease;
+}
+
+.overall-banner.normal {
+    background: rgba(52, 211, 153, .08);
+    border: 1px solid rgba(52, 211, 153, .25);
+    color: var(--green);
+}
+
+.overall-banner.warning {
+    background: rgba(251, 191, 36, .08);
+    border: 1px solid rgba(251, 191, 36, .25);
+    color: var(--yellow);
+    animation: glow-warning 2s ease-in-out infinite alternate;
+}
+
+.overall-banner.danger {
+    background: rgba(248, 113, 113, .08);
+    border: 1px solid rgba(248, 113, 113, .25);
+    color: var(--red);
+    animation: glow-danger 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes glow-warning {
+    from {
+        box-shadow: 0 0 12px rgba(251, 191, 36, .10);
+    }
+
+    to {
+        box-shadow: 0 0 28px rgba(251, 191, 36, .22);
+    }
+}
+
+@keyframes glow-danger {
+    from {
+        box-shadow: 0 0 14px rgba(248, 113, 113, .12);
+    }
+
+    to {
+        box-shadow: 0 0 32px rgba(248, 113, 113, .28);
+    }
+}
+
+/* ---------- Chart containers ---------- */
+.chart-wrapper {
+    position: relative;
+    height: 280px;
+}
+
+.chart-wrapper canvas {
+    width: 100% !important;
+}
+
+/* ---------- Toggle switch ---------- */
+.toggle-track {
+    width: 48px;
+    height: 26px;
+    border-radius: 13px;
+    background: #1e293b;
+    position: relative;
+    cursor: pointer;
+    transition: background .3s;
+    border: 1px solid rgba(34, 211, 238, .15);
+}
+
+.toggle-track.on {
+    background: rgba(34, 211, 238, .3);
+    border-color: var(--cyan);
+}
+
+.toggle-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    position: absolute;
+    top: 2px;
+    left: 3px;
+    transition: all .3s;
+}
+
+.toggle-track.on .toggle-thumb {
+    left: 24px;
+    background: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan-glow);
+}
+
+/* ---------- Info metric ---------- */
+.metric-value {
+    font-size: 2.2rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -1px;
+}
+
+.metric-label {
+    font-size: .82rem;
+    color: var(--text-dim);
+    margin-top: .25rem;
+}
+
+/* ---------- Utility ---------- */
+.text-cyan {
+    color: var(--cyan);
+}
+
+.text-dim {
+    color: var(--text-dim);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1024px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 1rem;
+    }
+}
+
+/* ---------- Mobile burger ---------- */
+.burger-btn {
+    display: none;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 50;
+    background: var(--navy-light);
+    border: 1px solid rgba(34, 211, 238, .15);
+    color: var(--cyan);
+    padding: .5rem .65rem;
+    border-radius: .5rem;
+    cursor: pointer;
+}
+
+@media (max-width: 1024px) {
+    .burger-btn {
+        display: block;
+    }
+}
+
+/* ---------- Page sections ---------- */
+.page-section {
+    animation: fadeIn .3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ---------- Settings range slider ---------- */
+.settings-range {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    border-radius: 3px;
+    background: #1e293b;
+    outline: none;
+    cursor: pointer;
+}
+
+.settings-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan-glow);
+    cursor: pointer;
+    transition: transform .15s;
+}
+
+.settings-range::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+}
+
+.settings-range::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan-glow);
+    border: none;
+    cursor: pointer;
+}
+
+/* ---------- Table rows ---------- */
+table tbody tr:last-child {
+    border-bottom: none !important;
+}

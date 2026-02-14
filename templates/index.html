@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OceanGuard — IoT Monitoring Dashboard</title>
+    <meta name="description"
+        content="OceanGuard real-time coastal monitoring IoT dashboard with sea level and wind speed tracking." />
+    <link rel="icon" type="image/png" href="/static/img/logo.png" />
+
+    <!-- Tailwind CSS v3 CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Google Font: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/style.css" />
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+                    colors: {
+                        navy: { DEFAULT: '#0b1120', light: '#131c33' },
+                        cyanA: '#22d3ee',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="antialiased">
+
+    <!-- ======================== MOBILE BURGER ======================== -->
+    <button class="burger-btn" id="burgerBtn" onclick="toggleSidebar()">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+    </button>
+
+    <!-- ======================== SIDEBAR ======================== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="logo-area">
+            <div class="flex items-center gap-3">
+                <img src="/static/img/logo.png" alt="OceanGuard" class="w-10 h-10 rounded-lg object-contain" />
+                <div>
+                    <h1 class="text-sm font-bold text-cyan-400 leading-tight tracking-wide">OCEANGUARD</h1>
+                    <p class="text-[11px] text-slate-500 font-medium tracking-widest">MONITORING</p>
+                </div>
+            </div>
+        </div>
+
+        <nav class="flex-1 py-4 space-y-1">
+            <a href="#" onclick="showPage('dashboard')" class="nav-link active" data-page="dashboard">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25a2.25 2.25 0 01-2.25-2.25v-2.25z" />
+                </svg>
+                Dashboard
+            </a>
+            <a href="#" onclick="showPage('charts')" class="nav-link" data-page="charts">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                </svg>
+                Prediction
+            </a>
+            <a href="#" onclick="showPage('settings')" class="nav-link" data-page="settings">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Settings
+            </a>
+        </nav>
+
+        <!-- Dummy Mode Toggle -->
+        <div class="px-5 pb-6">
+            <div class="glass-card !p-4 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Dummy Mode</p>
+                    <p class="text-[11px] text-slate-500 mt-0.5" id="dummyLabel">Active</p>
+                </div>
+                <div class="toggle-track on" id="dummyToggle" onclick="toggleDummy()">
+                    <div class="toggle-thumb"></div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ======================== MAIN CONTENT ======================== -->
+    <main class="main-content">
+
+        <!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  PAGE: DASHBOARD                                           ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+        <div id="page-dashboard" class="page-section">
+
+            <!-- Header -->
+            <header class="mb-8">
+                <h1 class="text-2xl font-extrabold tracking-tight">
+                    <span class="text-cyan-400">OceanGuard</span> IoT Dashboard
+                </h1>
+                <p class="text-slate-500 text-sm mt-1">Real-time sea level &amp; wind speed monitoring — auto-updating
+                    every 3 s</p>
+            </header>
+
+            <!-- STATUS BANNER -->
+            <div class="overall-banner normal mb-8" id="overallBanner">
+                <span class="status-glow normal" id="overallGlow"></span>
+                <span id="overallText">System Normal — All sensors within safe range</span>
+            </div>
+
+            <!-- INFO CARDS -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Sea Level Card -->
+                <div class="glass-card card-normal" id="cardSea">
+                    <div class="flex items-center justify-between mb-4">
+                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Sea Level</p>
+                        <span class="status-glow normal" id="seaGlow"></span>
+                    </div>
+                    <p class="metric-value text-cyan-400" id="seaValue">—</p>
+                    <p class="metric-label">centimeters (cm)</p>
+                    <div class="mt-3 flex items-center gap-2">
+                        <span class="text-[11px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 font-medium"
+                            id="seaStatusBadge">Normal</span>
+                    </div>
+                </div>
+
+                <!-- Wind Speed Card -->
+                <div class="glass-card card-normal" id="cardWind">
+                    <div class="flex items-center justify-between mb-4">
+                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Wind Speed</p>
+                        <span class="status-glow normal" id="windGlow"></span>
+                    </div>
+                    <p class="metric-value text-cyan-400" id="windValue">—</p>
+                    <p class="metric-label">meters / second (m/s)</p>
+                    <div class="mt-3 flex items-center gap-2">
+                        <span class="text-[11px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 font-medium"
+                            id="windStatusBadge">Normal</span>
+                    </div>
+                </div>
+
+                <!-- Overall Status Card -->
+                <div class="glass-card card-normal" id="cardOverall">
+                    <div class="flex items-center justify-between mb-4">
+                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Overall Status</p>
+                        <span class="status-glow normal" id="overallCardGlow"></span>
+                    </div>
+                    <p class="metric-value text-cyan-400" id="overallValue">Normal</p>
+                    <p class="metric-label">combined assessment</p>
+                    <div class="mt-3 flex items-center gap-2">
+                        <span class="text-[11px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 font-medium"
+                            id="overallStatusBadge">All systems safe</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LIVE CHARTS -->
+            <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="glass-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-sm font-semibold text-slate-300">📉 Sea Level (cm) — Live</h2>
+                        <span class="text-[11px] text-slate-500" id="seaChartTs">—</span>
+                    </div>
+                    <div class="chart-wrapper"><canvas id="seaChart"></canvas></div>
+                </div>
+                <div class="glass-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-sm font-semibold text-slate-300">💨 Wind Speed (m/s) — Live</h2>
+                        <span class="text-[11px] text-slate-500" id="windChartTs">—</span>
+                    </div>
+                    <div class="chart-wrapper"><canvas id="windChart"></canvas></div>
+                </div>
+            </section>
+
+        </div><!-- /page-dashboard -->
+
+        <!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  PAGE: PREDICTION (7-Day Forecast)                         ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+        <div id="page-charts" class="page-section" style="display:none;">
+
+            <header class="mb-8">
+                <h1 class="text-2xl font-extrabold tracking-tight">
+                    <span class="text-cyan-400">OceanGuard</span> 7-Day Prediction
+                </h1>
+                <p class="text-slate-500 text-sm mt-1">Forecasted sea level &amp; wind speed based on current trend
+                    analysis</p>
+            </header>
+
+            <!-- Prediction Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" id="predSummaryCards">
+                <div class="glass-card">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-9 h-9 rounded-lg bg-cyan-500/10 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" stroke-width="1.5"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.518l2.74-1.22m0 0l-5.94.02m5.94-.02l-.02 5.94" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Avg Sea Level</p>
+                            <p class="text-xl font-bold text-cyan-400" id="predAvgSea">—</p>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-slate-500">7-day predicted average</p>
+                </div>
+                <div class="glass-card">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-9 h-9 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" stroke-width="1.5"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Avg Wind Speed</p>
+                            <p class="text-xl font-bold text-purple-400" id="predAvgWind">—</p>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-slate-500">7-day predicted average</p>
+                </div>
+                <div class="glass-card">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-9 h-9 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" stroke-width="1.5"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Risk Days</p>
+                            <p class="text-xl font-bold text-amber-400" id="predRiskDays">—</p>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-slate-500">Days with Warning/Danger status</p>
+                </div>
+            </div>
+
+            <!-- Prediction Charts -->
+            <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="glass-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-sm font-semibold text-slate-300">🔮 Sea Level Forecast (cm)</h2>
+                        <button onclick="fetchPrediction()"
+                            class="text-[11px] px-3 py-1 rounded-lg bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 transition-colors">Refresh</button>
+                    </div>
+                    <div class="chart-wrapper"><canvas id="predSeaChart"></canvas></div>
+                </div>
+                <div class="glass-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-sm font-semibold text-slate-300">🌪️ Wind Speed Forecast (m/s)</h2>
+                        <button onclick="fetchPrediction()"
+                            class="text-[11px] px-3 py-1 rounded-lg bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 transition-colors">Refresh</button>
+                    </div>
+                    <div class="chart-wrapper"><canvas id="predWindChart"></canvas></div>
+                </div>
+            </section>
+
+            <!-- Prediction Table -->
+            <div class="glass-card mb-8">
+                <h2 class="text-sm font-semibold text-slate-300 mb-4">📋 Daily Forecast Breakdown</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-700/50">
+                                <th
+                                    class="text-left py-3 px-4 text-xs text-slate-400 uppercase tracking-wider font-semibold">
+                                    Day</th>
+                                <th
+                                    class="text-left py-3 px-4 text-xs text-slate-400 uppercase tracking-wider font-semibold">
+                                    Date</th>
+                                <th
+                                    class="text-right py-3 px-4 text-xs text-slate-400 uppercase tracking-wider font-semibold">
+                                    Sea Level</th>
+                                <th
+                                    class="text-right py-3 px-4 text-xs text-slate-400 uppercase tracking-wider font-semibold">
+                                    Wind Speed</th>
+                                <th
+                                    class="text-center py-3 px-4 text-xs text-slate-400 uppercase tracking-wider font-semibold">
+                                    Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="predTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div><!-- /page-charts -->
+
+        <!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  PAGE: SETTINGS                                            ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+        <div id="page-settings" class="page-section" style="display:none;">
+
+            <header class="mb-8">
+                <h1 class="text-2xl font-extrabold tracking-tight">
+                    <span class="text-cyan-400">OceanGuard</span> Settings
+                </h1>
+                <p class="text-slate-500 text-sm mt-1">Configure data generation, chart display, and export options</p>
+            </header>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+
+                <!-- Data Generation Settings -->
+                <div class="glass-card">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-9 h-9 rounded-lg bg-cyan-500/10 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" stroke-width="1.5"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <h2 class="text-sm font-semibold text-slate-300">Data Generation</h2>
+                    </div>
+
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-xs text-slate-400 uppercase tracking-wider font-semibold mb-2">Data
+                                Interval (seconds)</label>
+                            <div class="flex items-center gap-3">
+                                <input type="range" id="settInterval" min="1" max="30" value="3"
+                                    class="settings-range flex-1"
+                                    oninput="$('settIntervalVal').textContent = this.value + 's'" />
+                                <span class="text-sm font-mono text-cyan-400 w-8" id="settIntervalVal">3s</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-1">How often dummy data is generated (1–30s)</p>
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-xs text-slate-400 uppercase tracking-wider font-semibold mb-2">Chart
+                                Points (live)</label>
+                            <div class="flex items-center gap-3">
+                                <input type="range" id="settChartPoints" min="10" max="200" value="50" step="10"
+                                    class="settings-range flex-1"
+                                    oninput="$('settChartPointsVal').textContent = this.value" />
+                                <span class="text-sm font-mono text-cyan-400 w-10" id="settChartPointsVal">50</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-1">Number of data points shown on live charts
+                                (10–200)</p>
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-xs text-slate-400 uppercase tracking-wider font-semibold mb-2">Prediction
+                                Days</label>
+                            <div class="flex items-center gap-3">
+                                <input type="range" id="settPredDays" min="1" max="14" value="7"
+                                    class="settings-range flex-1"
+                                    oninput="$('settPredDaysVal').textContent = this.value + 'd'" />
+                                <span class="text-sm font-mono text-cyan-400 w-8" id="settPredDaysVal">7d</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-1">How many days to forecast (1–14)</p>
+                        </div>
+
+                        <button onclick="saveSettings()"
+                            class="w-full py-2.5 rounded-lg bg-cyan-500/15 text-cyan-400 text-sm font-semibold hover:bg-cyan-500/25 transition-colors border border-cyan-500/20">
+                            💾 Save Settings
+                        </button>
+                        <div id="settingsSaved"
+                            class="text-center text-[11px] text-emerald-400 opacity-0 transition-opacity duration-300">
+                            Settings saved successfully!</div>
+                    </div>
+                </div>
+
+                <!-- Export & Data Management -->
+                <div class="space-y-6">
+                    <div class="glass-card">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                                <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor"
+                                    stroke-width="1.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                                </svg>
+                            </div>
+                            <h2 class="text-sm font-semibold text-slate-300">Export Data</h2>
+                        </div>
+
+                        <p class="text-sm text-slate-400 mb-4">Download all recorded sensor data as a CSV file. Includes
+                            sea level, wind speed, timestamps, and computed status for every record.</p>
+
+                        <button onclick="downloadCSV()"
+                            class="w-full py-3 rounded-lg bg-emerald-500/15 text-emerald-400 text-sm font-semibold hover:bg-emerald-500/25 transition-all border border-emerald-500/20 flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m.75 12l3 3m0 0l3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                            </svg>
+                            Download CSV
+                        </button>
+                    </div>
+
+                    <!-- System Info -->
+                    <div class="glass-card">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-9 h-9 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                                <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor"
+                                    stroke-width="1.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                                </svg>
+                            </div>
+                            <h2 class="text-sm font-semibold text-slate-300">System Info</h2>
+                        </div>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Dummy Mode</span>
+                                <span class="font-semibold" id="settDummyStatus">—</span>
+                            </div>
+                            <div class="flex justify-between border-t border-slate-700/30 pt-3">
+                                <span class="text-slate-400">Total Records</span>
+                                <span class="font-semibold text-cyan-400" id="settTotalRecords">—</span>
+                            </div>
+                            <div class="flex justify-between border-t border-slate-700/30 pt-3">
+                                <span class="text-slate-400">Backend</span>
+                                <span class="font-semibold text-slate-300">Flask + SQLite</span>
+                            </div>
+                            <div class="flex justify-between border-t border-slate-700/30 pt-3">
+                                <span class="text-slate-400">API Version</span>
+                                <span class="font-semibold text-slate-300">v1.0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div><!-- /page-settings -->
+
+        <!-- Footer -->
+        <footer class="text-center text-slate-600 text-xs py-4">
+            OceanGuard IoT Dashboard &copy; 2026 &mdash; Real‑time coastal sensor tracking system
+        </footer>
+    </main>
+
+    <!-- ======================== JAVASCRIPT ======================== -->
+    <script>
+        // ── Helpers ──────────────────────────
+        const $ = id => document.getElementById(id);
+
+        const STATUS_META = {
+            Normal: { color: '#34d399', bg: 'bg-emerald-500/10', text: 'text-emerald-400', cardClass: 'card-normal', bannerMsg: 'System Normal — All sensors within safe range' },
+            Warning: { color: '#fbbf24', bg: 'bg-yellow-500/10', text: 'text-yellow-400', cardClass: 'card-warning', bannerMsg: 'Warning — Elevated readings detected' },
+            Danger: { color: '#f87171', bg: 'bg-red-500/10', text: 'text-red-400', cardClass: 'card-danger', bannerMsg: 'Danger — Critical levels reached!' },
+        };
+
+        // ── Page Navigation ─────────────────
+        function showPage(name) {
+            document.querySelectorAll('.page-section').forEach(p => p.style.display = 'none');
+            $('page-' + name).style.display = 'block';
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.querySelector(`.nav-link[data-page="${name}"]`).classList.add('active');
+
+            if (name === 'charts') fetchPrediction();
+            if (name === 'settings') loadSettings();
+        }
+
+        // ── Chart setup ─────────────────────
+        function makeChart(canvasId, label, borderColor, bgColor) {
+            const ctx = $(canvasId).getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 280);
+            gradient.addColorStop(0, bgColor);
+            gradient.addColorStop(1, 'rgba(0,0,0,0)');
+
+            return new Chart(ctx, {
+                type: 'line',
+                data: { labels: [], datasets: [{ label, data: [], borderColor, backgroundColor: gradient, borderWidth: 2, pointRadius: 0, pointHoverRadius: 5, pointHoverBackgroundColor: borderColor, fill: true, tension: 0.4 }] },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    animation: { duration: 600, easing: 'easeInOutQuart' },
+                    interaction: { intersect: false, mode: 'index' },
+                    scales: {
+                        x: { display: true, ticks: { color: '#475569', maxRotation: 0, maxTicksLimit: 8, font: { size: 10 } }, grid: { color: 'rgba(51,65,85,.15)' } },
+                        y: { ticks: { color: '#475569', font: { size: 10 } }, grid: { color: 'rgba(51,65,85,.15)' } },
+                    },
+                    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#131c33', borderColor: 'rgba(34,211,238,.2)', borderWidth: 1, titleColor: '#22d3ee', bodyColor: '#e2e8f0', padding: 10, cornerRadius: 8 } },
+                },
+            });
+        }
+
+        const seaChart = makeChart('seaChart', 'Sea Level (cm)', '#22d3ee', 'rgba(34,211,238,.15)');
+        const windChart = makeChart('windChart', 'Wind Speed (m/s)', '#a78bfa', 'rgba(167,139,250,.15)');
+
+        // ── Prediction Charts ───────────────
+        function makePredChart(canvasId, label, borderColor, bgColor, extraDataset) {
+            const ctx = $(canvasId).getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 280);
+            gradient.addColorStop(0, bgColor);
+            gradient.addColorStop(1, 'rgba(0,0,0,0)');
+
+            const datasets = [{
+                label, data: [], borderColor, backgroundColor: gradient, borderWidth: 2.5,
+                pointRadius: 5, pointHoverRadius: 8, pointBackgroundColor: borderColor,
+                fill: true, tension: 0.35,
+            }];
+
+            return new Chart(ctx, {
+                type: 'line',
+                data: { labels: [], datasets },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    animation: { duration: 800, easing: 'easeOutQuart' },
+                    interaction: { intersect: false, mode: 'index' },
+                    scales: {
+                        x: { ticks: { color: '#475569', font: { size: 10 } }, grid: { color: 'rgba(51,65,85,.15)' } },
+                        y: { ticks: { color: '#475569', font: { size: 10 } }, grid: { color: 'rgba(51,65,85,.15)' } },
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { backgroundColor: '#131c33', borderColor: 'rgba(34,211,238,.2)', borderWidth: 1, titleColor: '#22d3ee', bodyColor: '#e2e8f0', padding: 10, cornerRadius: 8 },
+                    },
+                },
+            });
+        }
+
+        const predSeaChart = makePredChart('predSeaChart', 'Sea Level Forecast (cm)', '#22d3ee', 'rgba(34,211,238,.12)');
+        const predWindChart = makePredChart('predWindChart', 'Wind Speed Forecast (m/s)', '#a78bfa', 'rgba(167,139,250,.12)');
+
+        // ── Status UI helpers ───────────────
+        function setGlow(el, status) { el.className = 'status-glow ' + status.toLowerCase(); }
+        function setCard(cardEl, status) { cardEl.classList.remove('card-normal', 'card-warning', 'card-danger'); cardEl.classList.add(STATUS_META[status].cardClass); }
+        function setBadge(badgeEl, status, extraText) { const m = STATUS_META[status]; badgeEl.className = `text-[11px] px-2 py-0.5 rounded-full font-medium ${m.bg} ${m.text}`; badgeEl.textContent = extraText || status; }
+        function setBanner(status) { const banner = $('overallBanner'); banner.className = 'overall-banner ' + status.toLowerCase(); setGlow($('overallGlow'), status); $('overallText').textContent = STATUS_META[status].bannerMsg; }
+
+        // ── Fetch & render (Dashboard) ──────
+        async function fetchLatest() {
+            try {
+                const res = await fetch('/api/latest');
+                const d = await res.json();
+                if (d.message) return;
+
+                $('seaValue').textContent = d.sea_level.toFixed(1);
+                setGlow($('seaGlow'), d.sea_status); setCard($('cardSea'), d.sea_status); setBadge($('seaStatusBadge'), d.sea_status);
+
+                $('windValue').textContent = d.wind_speed.toFixed(1);
+                setGlow($('windGlow'), d.wind_status); setCard($('cardWind'), d.wind_status); setBadge($('windStatusBadge'), d.wind_status);
+
+                $('overallValue').textContent = d.overall_status;
+                $('overallValue').style.color = STATUS_META[d.overall_status].color;
+                setGlow($('overallCardGlow'), d.overall_status); setCard($('cardOverall'), d.overall_status);
+                const overallMsg = d.overall_status === 'Normal' ? 'All systems safe' : d.overall_status === 'Warning' ? 'Monitor closely' : 'Take action!';
+                setBadge($('overallStatusBadge'), d.overall_status, overallMsg);
+                setBanner(d.overall_status);
+            } catch (e) { console.error('fetchLatest error:', e); }
+        }
+
+        async function fetchHistory() {
+            try {
+                const res = await fetch('/api/history');
+                const data = await res.json();
+                if (!data.length) return;
+
+                const labels = data.map(r => r.timestamp.split(' ')[1] || r.timestamp);
+                seaChart.data.labels = labels;
+                seaChart.data.datasets[0].data = data.map(r => r.sea_level);
+                seaChart.update('none'); seaChart.update();
+
+                windChart.data.labels = labels;
+                windChart.data.datasets[0].data = data.map(r => r.wind_speed);
+                windChart.update('none'); windChart.update();
+
+                const latest = data[data.length - 1];
+                $('seaChartTs').textContent = 'Updated: ' + latest.timestamp;
+                $('windChartTs').textContent = 'Updated: ' + latest.timestamp;
+            } catch (e) { console.error('fetchHistory error:', e); }
+        }
+
+        // ── Fetch Prediction ────────────────
+        async function fetchPrediction() {
+            try {
+                const res = await fetch('/api/prediction');
+                const data = await res.json();
+                if (data.error) return;
+
+                const labels = data.map(d => d.date);
+                const seaVals = data.map(d => d.sea_level);
+                const windVals = data.map(d => d.wind_speed);
+
+                // Bar colors per status
+                const seaColors = data.map(d => STATUS_META[d.sea_status]?.color || '#22d3ee');
+                const windColors = data.map(d => STATUS_META[d.wind_status]?.color || '#a78bfa');
+
+                predSeaChart.data.labels = labels;
+                predSeaChart.data.datasets[0].data = seaVals;
+                predSeaChart.data.datasets[0].pointBackgroundColor = seaColors;
+                predSeaChart.data.datasets[0].segment = {
+                    borderColor: ctx => seaColors[ctx.p1DataIndex],
+                };
+                predSeaChart.update();
+
+                predWindChart.data.labels = labels;
+                predWindChart.data.datasets[0].data = windVals;
+                predWindChart.data.datasets[0].pointBackgroundColor = windColors;
+                predWindChart.data.datasets[0].segment = {
+                    borderColor: ctx => windColors[ctx.p1DataIndex],
+                };
+                predWindChart.update();
+
+                // Summary cards
+                const avgSea = (seaVals.reduce((a, b) => a + b, 0) / seaVals.length).toFixed(1);
+                const avgWind = (windVals.reduce((a, b) => a + b, 0) / windVals.length).toFixed(1);
+                const riskDays = data.filter(d => d.overall_status !== 'Normal').length;
+                $('predAvgSea').textContent = avgSea + ' cm';
+                $('predAvgWind').textContent = avgWind + ' m/s';
+                $('predRiskDays').textContent = riskDays + ' / ' + data.length;
+
+                // Table
+                const tbody = $('predTableBody');
+                tbody.innerHTML = data.map(d => {
+                    const m = STATUS_META[d.overall_status];
+                    return `<tr class="border-b border-slate-700/30 hover:bg-slate-800/30 transition-colors">
+                    <td class="py-3 px-4 text-slate-300 font-medium">Day ${d.day}</td>
+                    <td class="py-3 px-4 text-slate-400">${d.date}</td>
+                    <td class="py-3 px-4 text-right font-mono text-cyan-400">${d.sea_level} cm</td>
+                    <td class="py-3 px-4 text-right font-mono text-purple-400">${d.wind_speed} m/s</td>
+                    <td class="py-3 px-4 text-center"><span class="text-[11px] px-2 py-0.5 rounded-full font-medium ${m.bg} ${m.text}">${d.overall_status}</span></td>
+                </tr>`;
+                }).join('');
+            } catch (e) { console.error('fetchPrediction error:', e); }
+        }
+
+        // ── Polling loop (3 s) ──────────────
+        async function poll() { await fetchLatest(); await fetchHistory(); }
+        poll(); setInterval(poll, 3000);
+
+        // ── Dummy Mode toggle ───────────────
+        async function toggleDummy() {
+            try {
+                const res = await fetch('/api/toggle-dummy', { method: 'POST' });
+                const d = await res.json();
+                applyDummyState(d.dummy_mode);
+            } catch (e) { console.error('toggleDummy error:', e); }
+        }
+        function applyDummyState(on) {
+            const track = $('dummyToggle'); const label = $('dummyLabel');
+            if (on) { track.classList.add('on'); label.textContent = 'Active'; }
+            else { track.classList.remove('on'); label.textContent = 'Paused'; }
+        }
+        fetch('/api/dummy-status').then(r => r.json()).then(d => applyDummyState(d.dummy_mode));
+
+        // ── Settings ────────────────────────
+        async function loadSettings() {
+            try {
+                const [sRes, dRes, hRes] = await Promise.all([
+                    fetch('/api/settings').then(r => r.json()),
+                    fetch('/api/dummy-status').then(r => r.json()),
+                    fetch('/api/history').then(r => r.json()),
+                ]);
+
+                $('settInterval').value = sRes.data_interval;
+                $('settIntervalVal').textContent = sRes.data_interval + 's';
+                $('settChartPoints').value = sRes.chart_points;
+                $('settChartPointsVal').textContent = sRes.chart_points;
+                $('settPredDays').value = sRes.prediction_days;
+                $('settPredDaysVal').textContent = sRes.prediction_days + 'd';
+
+                $('settDummyStatus').textContent = dRes.dummy_mode ? 'Active' : 'Paused';
+                $('settDummyStatus').style.color = dRes.dummy_mode ? '#34d399' : '#fbbf24';
+
+                $('settTotalRecords').textContent = Array.isArray(hRes) ? hRes.length + '+' : '0';
+            } catch (e) { console.error('loadSettings error:', e); }
+        }
+
+        async function saveSettings() {
+            try {
+                const body = {
+                    data_interval: parseInt($('settInterval').value),
+                    chart_points: parseInt($('settChartPoints').value),
+                    prediction_days: parseInt($('settPredDays').value),
+                };
+                await fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+                const saved = $('settingsSaved');
+                saved.style.opacity = '1';
+                setTimeout(() => saved.style.opacity = '0', 2000);
+            } catch (e) { console.error('saveSettings error:', e); }
+        }
+
+        // ── CSV Download ────────────────────
+        function downloadCSV() {
+            window.location.href = '/api/export-csv';
+        }
+
+        // ── Sidebar mobile toggle ──────────
+        function toggleSidebar() { $('sidebar').classList.toggle('open'); }
+    </script>
+</body>
+
+</html>

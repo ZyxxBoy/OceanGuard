@@ -1,0 +1,52 @@
+# Coastal Monitoring IoT Dashboard — Walkthrough
+
+## Project Structure
+
+```
+e:\Backend Project\MAL\
+├── app.py                  # Flask backend + SQLite + data generator
+├── requirements.txt        # flask
+├── templates/
+│   └── index.html          # Full dashboard SPA
+└── static/
+    └── css/
+        └── style.css       # Glassmorphism, glow, dark theme
+```
+
+## What Was Built
+
+| Layer | Technology | Details |
+|-------|-----------|---------|
+| Backend | Flask + SQLite | REST API, background thread generates data every 3s |
+| Frontend | Tailwind v3 + Chart.js | Dark navy theme, glassmorphism, live charts |
+| Data | Auto dummy generator | Realistic fluctuating sea level & wind speed |
+
+### API Endpoints
+
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| `GET` | `/api/latest` | Latest sensor reading with status |
+| `GET` | `/api/history` | Last 50 records (sliding window) |
+| `GET` | `/api/generate-dummy` | Manually trigger one record |
+| `POST` | `/api/sensor-data` | Accept real IoT device data |
+| `POST` | `/api/toggle-dummy` | Enable/disable auto generation |
+| `GET` | `/api/dummy-status` | Current dummy mode state |
+
+## Verification Results
+
+All endpoints tested and confirmed working:
+
+- **`/api/latest`** → Returns `sea_level`, `wind_speed`, computed `sea_status`, `wind_status`, `overall_status` ✅
+- **`/api/history`** → Returns up to 50 records with 3-second intervals ✅
+- **`/api/dummy-status`** → Reports `dummy_mode: true` ✅
+- **Background generator** → Records accumulate automatically every 3 seconds ✅
+
+## How to Run
+
+```bash
+cd "e:\Backend Project\MAL"
+pip install flask
+python app.py
+```
+
+Open **http://127.0.0.1:5000** in your browser.
